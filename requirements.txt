@@ -1,0 +1,12 @@
+requests
+pandas
+os-sys
+time
+calendar
+ast
+streamlit
+plotly
+numpy
+scikit-learn
+folium
+streamlit-folium
