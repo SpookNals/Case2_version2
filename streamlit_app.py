@@ -9,16 +9,25 @@ import folium
 # conda install conda-forge::streamlit-folium
 from streamlit_folium import folium_static
 
+st.set_page_config(
+    page_title="Weer in Amsterdam",
+    page_icon="🌦️",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 # Load data
 df = pd.read_csv('weather_cleaned.csv')
 df_raw = pd.read_csv('weather.csv')
 df['dt'] = pd.to_datetime(df['dt'])
 
+# create a screen switcher
 st.sidebar.radio(
-        "Selecteer wat je wil zien 👉",
+        "Selecteer wat je wil zien",
         key="visibility",
         options=["visuals", "api"],
     )
+st.sidebar.write('---')
 
 if st.session_state.visibility == "visuals":
 
@@ -45,13 +54,15 @@ if st.session_state.visibility == "visuals":
 
     # Create a checkbox for showing the trendline
     show_trendline = st.sidebar.checkbox('Trendline')
+    st.sidebar.write('---')
 
+    # Filter the data based on the selected year
     if all_years:
         df_filtered = df
     else:
         df_filtered = df[df['dt'].dt.year == year]
 
-    # Convert temperature from kelvin to Fahrenheit if the user selected it
+    # Convert temperature to the selected unit
     if unit == 'Fahrenheit':
         temp_unit = 'fahrenheit'
         df_filtered['feels_like'] = (df_filtered['feels_like'] - 273.15) * 9/5 + 32
@@ -60,12 +71,11 @@ if st.session_state.visibility == "visuals":
         temp_unit = 'kelvin'
         pass
     else:
-        # Convert temperature from kelvin to Celsius
         temp_unit = 'celsius'
         df_filtered['feels_like'] = df_filtered['feels_like'] - 273.15
         df_filtered['dew_point'] = df_filtered['dew_point'] - 273.15
 
-    # make the y axes range static for each unit
+    # make the y-axes range static for each unit
     if unit == 'Fahrenheit':
         y_range = [0, 100]
     elif unit == 'Kelvin':
@@ -76,9 +86,9 @@ if st.session_state.visibility == "visuals":
     # Create a line chart for the selected year
     title_fig_1 = f'Temperatuur Amsterdam in {year}' if not all_years else 'Temperatuur Amsterdam'
     fig = px.line(df_filtered, x="dt", y=temp_unit, title=title_fig_1)
-    fig.update_traces(name='Temperature', showlegend=True)
+    fig.update_traces(name='Temperatuur', showlegend=True)
     fig.update_layout(
-        xaxis_title='Date', 
+        xaxis_title='Tijd', 
         yaxis_title=unit,
         width=900,
         height=500,
@@ -98,7 +108,7 @@ if st.session_state.visibility == "visuals":
         x=max_temp_per_year['dt'], 
         y=max_temp_per_year[temp_unit], 
         mode='markers', 
-        name='Max Temperature', 
+        name='Max Temperatuur', 
         marker=dict(color='red'),
         marker_size=5
     )
@@ -108,7 +118,7 @@ if st.session_state.visibility == "visuals":
         x=min_temp_per_year['dt'], 
         y=min_temp_per_year[temp_unit], 
         mode='markers', 
-        name='Min Temperature', 
+        name='Min Temperatuur', 
         marker=dict(color='blue'),
         marker_size=5
     )
@@ -124,11 +134,11 @@ if st.session_state.visibility == "visuals":
     if show_feels_like:
         fig.add_scatter(x=df_filtered['dt'], y=df_filtered['feels_like'], opacity=0.5, mode='lines', name='Feels Like',
                         line=dict(color='red'))
+
+    # Add the 'dew_point' temperature to the chart if the user selected it
     if show_dew_point:
         fig.add_scatter(x=df_filtered['dt'], y=df_filtered['dew_point'], opacity=0.5, mode='lines', name='Dew Point',
                         line=dict(color='green'))
-    # Display the chart
-    st.plotly_chart(fig, use_container_width=True)
 
     # Create a new 'year-month' column to represent the months in the format 'YYYY-MM'
     df_filtered['year_month'] = df_filtered['dt'].dt.to_period('M').astype(str)
@@ -136,20 +146,22 @@ if st.session_state.visibility == "visuals":
     # Group the data by the new 'year_month' column to calculate the average temperature per month
     df_grouped = df_filtered.groupby('year_month').mean(numeric_only=True).reset_index()
 
-    # Create a bar chart for the average temperature per month
+    # set dynamic variables for the title and color of the bar chart
     title_fig_2 = f'Gemiddelde temperatuur per maand in {year}' if not all_years else 'Gemiddelde Temperatuur per Maand'
-    fig_2 = px.bar(df_grouped, x='year_month', y=temp_unit, title=title_fig_2)
+    fig2_color = 'month' if not all_years else 'year'
+
+    fig_2 = px.bar(df_grouped, x='year_month',color=fig2_color,  y=temp_unit, title=title_fig_2)
 
     # Update traces
-    fig_2.update_traces(name='Temperature', showlegend=True)
+    fig_2.update_traces(name='Temperatuur', showlegend=True)
     fig_2.update_layout(
-        xaxis_title='Date',
-        yaxis_title=unit,
+        xaxis_title='Tijd',
+        yaxis_title=f'{unit}',
         width=900,
         height=500,
         yaxis=dict(range=y_range),
         xaxis=dict(type='category'),
-        barmode='overlay',  # Set the bars to overlay rather than stack
+        barmode='overlay',
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     if show_trendline:
@@ -159,20 +171,104 @@ if st.session_state.visibility == "visuals":
         df_grouped['bestfit'] = reg.predict(X)
         fig_2.add_scatter(x=df_grouped['year_month'], y=df_grouped['bestfit'], mode='lines', name='Trendline', line=dict(color='yellow'))
 
-    # Add the 'feels_like' bar to the chart if selected
     if show_feels_like:
         df_grouped_feels_like = df_filtered.groupby('year_month').mean(numeric_only=True).reset_index()
         fig_2.add_bar(x=df_grouped_feels_like['year_month'], y=df_grouped_feels_like['feels_like'], opacity=0.5, name='Feels Like',
                     marker_color='red')
 
-    # Add the 'dew_point' bar to the chart if selected
     if show_dew_point:
         df_grouped_dew_point = df_filtered.groupby('year_month').mean(numeric_only=True).reset_index()
         fig_2.add_bar(x=df_grouped_dew_point['year_month'], y=df_grouped_dew_point['dew_point'], opacity=0.5, name='Dew Point',
-                    marker_color='green')
+                    marker_color='green') 
+    
+    # create a fig3 that shows the average temperature of each year in a bar chart
+    df_grouped_year = df_filtered.groupby('year').mean(numeric_only=True).reset_index()
+    fig3_color = None if not all_years else 'year'
+    fig3_title = f'Gemiddelde temperatuur in {year}' if not all_years else 'Gemiddelde Temperatuur per Jaar'
+    fig_3 = px.bar(df_grouped_year, x='year', color=fig3_color, y=temp_unit, title=fig3_title)
+    fig_3.update_traces(name='Temperatuur', showlegend=True)
+    fig_3.update_layout(
+        xaxis_title='Tijd',
+        yaxis_title=f'{unit}',
+        width=900,
+        height=500,
+        barmode='overlay',
+        yaxis=dict(range=y_range),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
 
-    # Display the chart
-    st.plotly_chart(fig_2, use_container_width=True)
+    # show ticks for each year, else it will divide the x-axis in parts for only one data point for x-axis
+    year_ticks = list(range(df['year'].min(), df['year'].max() + 1)) if all_years else [year]
+
+    fig_3.update_xaxes(
+    tickvals=year_ticks,  # Set the tick values to the specified years
+    ticktext=[str(year) for year in year_ticks]  # Convert year ticks to strings for labeling
+)
+    if show_trendline:
+        X = np.arange(len(df_grouped_year)).reshape(-1, 1)
+        Y = df_grouped_year[temp_unit].values
+        reg = LinearRegression().fit(X, Y)
+        df_grouped_year['bestfit'] = reg.predict(X)
+        fig_3.add_scatter(x=df_grouped_year['year'], y=df_grouped_year['bestfit'], mode='lines', name='Trendline', line=dict(color='yellow'))
+
+    if show_feels_like:
+        fig_3.add_bar(x=df_grouped_year['year'], y=df_grouped_year['feels_like'], opacity=0.5, name='Feels Like', marker_color='red')
+
+    if show_dew_point:
+        fig_3.add_bar(x=df_grouped_year['year'], y=df_grouped_year['dew_point'], opacity=0.5, name='Dew Point', marker_color='green')
+
+
+    st.plotly_chart(fig, use_container_width=True)
+        
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.plotly_chart(fig_2, use_container_width=True)
+    
+    with col2:
+        st.plotly_chart(fig_3, use_container_width=True)
+    
+    st.write('---')
+    col1, col2 = st.columns(2)
+    
+    
+
+    with col1:
+        year = st.selectbox('Selecteer een Jaar', available_years)
+    with col2:
+        month = st.slider('Selecteer een Maand', min_value=1, max_value=12, value=1, step=1, format="%d")
+
+    # based on the selected year, and month, create a graph that shows the temperature of that month
+    df_filtered_month = df_filtered[(df_filtered['year'] == year) & (df_filtered['month'] == month)]
+    fig_4 = px.line(df_filtered_month, x='dt', y=temp_unit, title=f'Temperatuur in {year}-{month}')
+    fig_4.update_traces(name='Temperatuur', showlegend=True)
+    fig_4.update_layout(
+        xaxis_title='Tijd',
+        yaxis_title=f'{unit}',
+        width=900,
+        height=500,
+        yaxis=dict(range=y_range),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+
+    if show_feels_like:
+        fig_4.add_scatter(x=df_filtered_month['dt'], y=df_filtered_month['feels_like'], opacity=0.5, mode='lines', name='Feels Like',
+                        line=dict(color='red'))	
+    if show_dew_point:
+        fig_4.add_scatter(x=df_filtered_month['dt'], y=df_filtered_month['dew_point'], opacity=0.5, mode='lines', name='Dew Point',
+                        line=dict(color='green'))
+    
+    if show_trendline:
+        X = np.arange(len(df_filtered_month)).reshape(-1, 1)
+        Y = df_filtered_month[temp_unit].values
+        reg = LinearRegression().fit(X, Y)
+        df_filtered_month['bestfit'] = reg.predict(X)
+        fig_4.add_scatter(x=df_filtered_month['dt'], y=df_filtered_month['bestfit'], mode='lines', name='Trendline', line=dict(color='yellow'))
+
+    st.plotly_chart(fig_4, use_container_width=True)
+
+
+
 
 with st.sidebar.expander("Zie Locatie"):
     # Add a Folium map with a marker for Amsterdam (only create it once)
@@ -199,7 +295,7 @@ if st.session_state.visibility == "api":
     st.title('API')
 
     # create a alinea with text 
-    st.write('We hebben gebruik gemaakt van OpenWeather api. Het was ons doel om temperatuur verschillen per jaar te zien en deze api is hier geschikt voor. Hieronder staat de code van api.')
+    st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van api.')
 
     st.markdown('**Dit is een functie om een lijst met unix timestamps te maken op basis van een lijst met jaren**')
     code = """
@@ -296,3 +392,5 @@ df.to_csv('weather_cleaned.csv', index=False)
     st.code(code, language='python')
     st.markdown('**Hieronder zie je de eerste 3 rijen van de opgeschoonde data**')
     st.dataframe(df.head(3))
+
+    
