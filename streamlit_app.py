@@ -217,9 +217,20 @@ if st.session_state.visibility == "visuals":
     if show_dew_point:
         fig_3.add_bar(x=df_grouped_year['year'], y=df_grouped_year['dew_point'], opacity=0.5, name='Dew Point', marker_color='green')
 
-
+    st.header('Line Plot')
+    st.write("""
+De eerste grafiek toont de temperatuurontwikkeling in Amsterdam over de jaren heen. Hierbij is duidelijk te zien dat de temperatuur in de zomermaanden hoger ligt dan in de wintermaanden. Ook is er een stijgende trend zichtbaar in de temperatuur.
+"""
+    )
+             
     st.plotly_chart(fig, use_container_width=True)
-        
+    
+    st.header('Bar PLots')
+    st.write("""
+De eerste grafiek toont de gemiddelde maandelijkse temperaturen in Amsterdam, waarbij duidelijk de verschillen zichtbaar zijn. In de wintermaanden, in de eerste maanden ligt de gemiddelde tempratuur lager. Daarna stijgt de tempratuur snel. Als je naar het eind van de eerste grafiek kijkt dan koelt het weer af richting de herfst en winter.
+De tweede grafiek geeft de gemiddelde temperatuur per jaar weer. Hiermee kun je de jaren met elkaar vergelijken.
+"""
+    )
     col1, col2 = st.columns(2)
 
     with col1:
@@ -230,7 +241,11 @@ if st.session_state.visibility == "visuals":
     
     st.write('---')    
     
-
+    st.header('Slide door de maanden van het jaar')
+    st.write('''
+Deze grafiek maakt het mogelijk om een specifieke maand van het jaar te selecteren, waarna de temperatuurontwikkeling gedurende die maand overzichtelijk wordt weergegeven. Hiermee kun je eenvoudig inzicht krijgen in de temperatuurfluctuaties binnen de gekozen periode.
+'''
+    )
     month_fig4 = st.slider('Selecteer een Maand', min_value=1, max_value=12, value=1, step=1, format="%d")
 
     # based on the selected year, and month, create a graph that shows the temperature of that month
@@ -387,5 +402,14 @@ df.to_csv('weather_cleaned.csv', index=False)
     st.code(code, language='python')
     st.markdown('**Hieronder zie je de eerste 3 rijen van de opgeschoonde data**')
     st.dataframe(df.head(3))
+    st.write('---')
 
-    
+    # add url to the api
+    st.markdown('**Betrouwbaarheid - OpenWeather API**')
+    st.write('''
+Openweather is de eerste api die te voorschijn komt als je zoekt naar een weer api. Het is een gratis api en heeft een goede documentatie.
+''')
+    st.write('''
+https://openweathermap.org/accuracy-and-quality
+'''
+)
