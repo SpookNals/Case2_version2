@@ -25,7 +25,7 @@ df['dt'] = pd.to_datetime(df['dt'])
 st.sidebar.radio(
         "Selecteer wat je wil zien",
         key="visibility",
-        options=["visuals", "api"],
+        options=["api, "visuals"],
     )
 st.sidebar.write('---')
 
@@ -292,7 +292,7 @@ with st.sidebar.expander("Zie Locatie"):
 
 if st.session_state.visibility == "api":
     # Create a title for the API section
-    st.title('API')
+    st.title('OpenWeather API')
 
     # create a alinea with text 
     st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van api.')
