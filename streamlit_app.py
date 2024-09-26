@@ -328,7 +328,7 @@ for year in years:
 """
     st.code(code, language='python')
 
-    st.markdown('**Api tokens**')
+    st.header('**Api tokens**')
     code = """
 API_key = 'Hier de api key'
 Amsterdam_lat = 52.377956
@@ -336,7 +336,7 @@ Amsterdam_lon = 4.897070
 """
     st.code(code, language='python')
 
-    st.markdown('**Dit is de code om de data te krijgen en op te slaan in een csv bestand**')
+    st.header('**Dit is de code om de data te krijgen en op te slaan in een csv bestand**')
     code = """
 # Loop through each date and request the weather data
 for timestamp in date_strings:
@@ -355,10 +355,10 @@ for timestamp in date_strings:
 """
     st.code(code, language='python')
 
-    st.markdown('**Hieronder zie je de eerste 3 rijen van de data**')
+    st.header('**Hieronder zie je de eerste 3 rijen van de data**')
     st.dataframe(df_raw.head(3))
     st.write('zoals je ziet is de data kolom nog opgekropt. Dit hebben we opgelost door het op te schonen')
-    st.markdown('**Data opschonen en naar een nieuwe csv schrijven**')
+    st.header('**Data opschonen en naar een nieuwe csv schrijven**')
     code = """
 # Parse the 'data' column (stringified dictionary) back into a Python dictionary 
 df['data'] = df['data'].apply(ast.literal_eval)
@@ -400,12 +400,12 @@ df['kelvin'] = df['temp']
 df.to_csv('weather_cleaned.csv', index=False)
 """
     st.code(code, language='python')
-    st.markdown('**Hieronder zie je de eerste 3 rijen van de opgeschoonde data**')
+    st.header('**Hieronder zie je de eerste 3 rijen van de opgeschoonde data**')
     st.dataframe(df.head(3))
     st.write('---')
 
     # add url to the api
-    st.markdown('**Betrouwbaarheid - OpenWeather API**')
+    st.header('**Betrouwbaarheid - OpenWeather API**')
     st.write('''
 Openweather is de eerste api die te voorschijn komt als je zoekt naar een weer api. Het is een gratis api en heeft een goede documentatie.
 ''')
@@ -413,3 +413,5 @@ Openweather is de eerste api die te voorschijn komt als je zoekt naar een weer a
 https://openweathermap.org/accuracy-and-quality
 '''
 )
+
+    
