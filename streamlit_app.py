@@ -225,7 +225,7 @@ De eerste grafiek toont de temperatuurontwikkeling in Amsterdam over de jaren he
              
     st.plotly_chart(fig, use_container_width=True)
     
-    st.header('Bar PLots')
+    st.header('Bar Plots')
     st.write("""
 De eerste grafiek toont de gemiddelde maandelijkse temperaturen in Amsterdam, waarbij duidelijk de verschillen zichtbaar zijn. In de wintermaanden, in de eerste maanden ligt de gemiddelde tempratuur lager. Daarna stijgt de tempratuur snel. Als je naar het eind van de eerste grafiek kijkt dan koelt het weer af richting de herfst en winter.
 De tweede grafiek geeft de gemiddelde temperatuur per jaar weer. Hiermee kun je de jaren met elkaar vergelijken.
