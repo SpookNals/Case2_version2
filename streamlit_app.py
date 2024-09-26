@@ -228,19 +228,14 @@ if st.session_state.visibility == "visuals":
     with col2:
         st.plotly_chart(fig_3, use_container_width=True)
     
-    st.write('---')
-    col1, col2 = st.columns(2)
-    
+    st.write('---')    
     
 
-    with col1:
-        year = st.selectbox('Selecteer een Jaar', available_years)
-    with col2:
-        month = st.slider('Selecteer een Maand', min_value=1, max_value=12, value=1, step=1, format="%d")
+    month_fig4 = st.slider('Selecteer een Maand', min_value=1, max_value=12, value=1, step=1, format="%d")
 
     # based on the selected year, and month, create a graph that shows the temperature of that month
-    df_filtered_month = df_filtered[(df_filtered['year'] == year) & (df_filtered['month'] == month)]
-    fig_4 = px.line(df_filtered_month, x='dt', y=temp_unit, title=f'Temperatuur in {year}-{month}')
+    df_filtered_month = df_filtered[(df_filtered['year'] == year) & (df_filtered['month'] == month_fig4)]
+    fig_4 = px.line(df_filtered_month, x='dt', y=temp_unit, title=f'Temperatuur in {year}-{month_fig4}')
     fig_4.update_traces(name='Temperatuur', showlegend=True)
     fig_4.update_layout(
         xaxis_title='Tijd',
@@ -292,7 +287,7 @@ with st.sidebar.expander("Zie Locatie"):
 
 if st.session_state.visibility == "api":
     # Create a title for the API section
-    st.title('OpenWeather API')
+    st.title('API')
 
     # create a alinea with text 
     st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van api.')
