@@ -305,7 +305,7 @@ if st.session_state.visibility == "api":
     st.title('API')
 
     # create a alinea with text 
-    st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van api.')
+    st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van de api.')
 
     st.markdown('**Dit is een functie om een lijst met unix timestamps te maken op basis van een lijst met jaren**')
     code = """
