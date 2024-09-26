@@ -25,7 +25,7 @@ df['dt'] = pd.to_datetime(df['dt'])
 st.sidebar.radio(
         "Selecteer wat je wil zien",
         key="visibility",
-        options=["api, "visuals"],
+        options=["api", "visuals"],
     )
 st.sidebar.write('---')
 
