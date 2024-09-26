@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 from sklearn.linear_model import LinearRegression
+import streamlit.components.v1 as components
 
 # conda install conda-forge::folium
 import folium
@@ -15,6 +16,28 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Define JavaScript for capturing and restoring scroll position
+scroll_position_js = """
+    <script>
+        // Save the scroll position on scroll
+        window.onscroll = function() {
+            var scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+            sessionStorage.setItem("scrollPos", scrollPos);
+        };
+
+        // Restore the scroll position on page load
+        document.addEventListener("DOMContentLoaded", function(event) {
+            var scrollPos = sessionStorage.getItem("scrollPos");
+            if (scrollPos) {
+                window.scrollTo(0, scrollPos);
+            }
+        });
+    </script>
+"""
+
+# Inject JavaScript to the page without affecting layout
+components.html(scroll_position_js, height=0)
 
 # Load data
 df = pd.read_csv('weather_cleaned.csv')
@@ -225,7 +248,7 @@ De eerste grafiek toont de temperatuurontwikkeling in Amsterdam over de jaren he
              
     st.plotly_chart(fig, use_container_width=True)
     
-    st.header('Bar Plots')
+    st.header('Bar PLots')
     st.write("""
 De eerste grafiek toont de gemiddelde maandelijkse temperaturen in Amsterdam, waarbij duidelijk de verschillen zichtbaar zijn. In de wintermaanden, in de eerste maanden ligt de gemiddelde tempratuur lager. Daarna stijgt de tempratuur snel. Als je naar het eind van de eerste grafiek kijkt dan koelt het weer af richting de herfst en winter.
 De tweede grafiek geeft de gemiddelde temperatuur per jaar weer. Hiermee kun je de jaren met elkaar vergelijken.
@@ -305,7 +328,7 @@ if st.session_state.visibility == "api":
     st.title('API')
 
     # create a alinea with text 
-    st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van de api.')
+    st.write('We hebben gebruik gemaakt van de OpenWeather api. Het was ons doel om inzicht te krijgen van de temperatuur in Amsterdam. Hieronder staat de code van api.')
 
     st.markdown('**Dit is een functie om een lijst met unix timestamps te maken op basis van een lijst met jaren**')
     code = """
